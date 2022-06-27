@@ -51,8 +51,6 @@ MINICONDA_FILE = os.path.abspath(
 
 CONDA_PATH = "conda"
 
-RO_TEMP_TOKEN = "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"
-
 # setup parser for command line arguments
 parser = argparse.ArgumentParser(description='Installation parameter')
 parser.add_argument('-e', '--environment', help='Conda environment name')
@@ -283,8 +281,8 @@ def install_from_github_on_os():
         pass
 
     subprocess.check_call("git clone -q "
-                          f"https://{RO_TEMP_TOKEN + '@'}github.com/ElinaFF/MetaboDashboard "
-                          f"temporary_installation_folder",
+                          "https://github.com/corbeillab/MeDIC "
+                          "temporary_installation_folder",
                           shell=True, stdout=subprocess.DEVNULL)
 
     move_files_from_clone_to_project_folder()
