@@ -1,7 +1,7 @@
-import os.path
-from typing import List
 import base64
 import io
+import os.path
+from typing import List, Tuple, Union
 
 import pandas as pd
 
@@ -70,9 +70,13 @@ class MetaData:
         return list(set(targets))
 
     def set_id_column(self, id_column: str) -> None:
+        if id_column not in self._dataframe:
+            raise ValueError(f"'{id_column}' is not a column of the metadata.")
         self._id_column = id_column
 
     def set_target_column(self, target_column: str) -> None:
+        if target_column not in self._dataframe:
+            raise ValueError(f"'{target_column}' is not a column of the metadata.")
         self._target_column = target_column
 
     def get_target_column(self) -> str:
@@ -83,11 +87,20 @@ class MetaData:
 
     def get_targets(self) -> List[str]:
         if self._target_column is None:
+            print("WARNING: accessing targets before setting the column")
             return []
         return self._dataframe[self._target_column].tolist()
 
+    def get_selected_targets_and_ids(self, selected_targets: List[str]) -> Tuple[Tuple[str], Tuple[str]]:
+        return tuple(zip(*[(target, id) for target, id in zip(self.get_targets(), self.get_samples_id()) if
+                     target in selected_targets]))
+
+    def get_selected_targets(self, selected_targets: List[str]) -> List[str]:
+        return [target for target in self.get_targets() if target in selected_targets]
+
     def get_samples_id(self) -> List[str]:
         if self._id_column is None:
+            print("WARNING: accessing samples id before setting the column")
             return []
         return self._dataframe[self._id_column].tolist()
 

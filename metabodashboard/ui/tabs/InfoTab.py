@@ -30,8 +30,9 @@ class InfoTab(MetaTab):
                 [
                     html.P(
                         "In the Splits tab, you create a setting file with all info necessary to run a machine learning experiment. "
-                        "This file will even contain path to a copy of the data to avoid broken paths (after some times, "
-                        "files might be moved or deleted and the path pointing to their location will then be not valid). "
+                        "There is a hash mecanism in place to ensure that the locally saved data fits the experiment file "
+                        "that might be loaded in the futur. This mecanism can be compared to a lock and key mecanism where the key "
+                        "to check a file will only fit this particular file."
                     ),
                     html.P(
                         "It is at this step that you can decide the (potential) multiple design experiment that you wish to explore. "
@@ -56,13 +57,13 @@ class InfoTab(MetaTab):
                     ),
                     html.P(
                         "For the algorithms selection, there is some already implemented by default in the tool, so you can simply "
-                        "select them. But there is also the possibility to import manually other algorithms from Scikit-Learn, in this"
+                        "select them. But there is also the possibility to import manually other algorithms from Scikit-Learn. In this "
                         "case you need to provide several information about the algorithm you wish to add so it can be integrated in the "
                         "analysis."
                     ),
                     html.P(
                         "The possibility to add a completely custom algorithm will eventually also be available. But it will require "
-                        "modifications directly in the code files, and thus? is meant for people with more informatics abilities."
+                        "modifications directly in the code files. It is meant for people with more programming abilities."
                     ),
                 ]
             ),
@@ -72,7 +73,13 @@ class InfoTab(MetaTab):
             dbc.CardHeader("Results"),
             dbc.CardBody(
                 [
-                    html.P("In this tab, ",
+                    html.P("The entire section of Results is based on the perspective of analysing the features selected "
+                           "by the algorithms. For one experimental design of classes, multiple algorithms can be run. "
+                           "Then, the results and performances of each algorithm can be explored one by one to ensure that "
+                           "the prediction and therefore the selection of the features is valid. At the end, there is a "
+                           "section that aggregates the results of all the algorithms in several figures to compare which "
+                           "features are selected by which algorithm and check for redundancies. The repeated use of a "
+                           "metabolite across different algorithm is a good indicator of the relevance of this molecule.",
                            className="card-text"),
                 ]
             ),
@@ -91,7 +98,7 @@ class InfoTab(MetaTab):
         _infoFigure = html.Div(className="column_content", children=[
             dbc.Card(className="card_body_fig", children=[
                 # dbc.Card("Amazing figure here", className="card_body_fig", body=True),
-                dbc.CardImg(src="/assets/Figure_home_wider.png", bottom=True)
+                dbc.CardImg(src="/assets/update_figure_steps_MeDIC_4.svg", bottom=True)
             ])
         ])
         # TODO : add the filename

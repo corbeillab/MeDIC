@@ -66,9 +66,16 @@ class MLTab(MetaTab):
                           className="form_input_text"),
                 dbc.Input(id="values_param", placeholder="Values to explore",
                           className="form_input_text"),
+                html.Div(children=[
+                    html.Br(),
+                    html.P("You can set the grid search parameters as followed:"),
+                    html.P("Name of parameter: 'param1, param2'"),
+                    html.P("Values to explore: '[val1A, val1B, val1C], [val2A, val2B, val2C]'")
+                ]),
                 dbc.Button("Add", color="success",
                            id="add_n_refresh_sklearn_algo_button",
                            className="custom_buttons", n_clicks=0),
+
             ],
             className="form_field"
         )

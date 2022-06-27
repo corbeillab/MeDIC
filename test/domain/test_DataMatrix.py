@@ -1,12 +1,10 @@
 from unittest.mock import patch, mock_open
 
-import pandas as pd
 import pytest
-from sklearn.preprocessing import StandardScaler
 
 from ...metabodashboard.domain import DataMatrix
 
-from .TestsUtility import DATAMATRIX_DATAFRAME, SAMPLES_ID, SCALED_DATA, ENCODED_DATAMATRIX_DATAFRAME, \
+from ..TestsUtility import DATAMATRIX_DATAFRAME, SAMPLES_ID, ENCODED_DATAMATRIX_DATAFRAME, \
     assert_dataframe_approximately_equal, SCALED_DATA
 
 
@@ -45,7 +43,7 @@ def test_givenData_whenLoadSampleWithIdList_thenTheDataIsLoaded(input_data_matri
 @patch('sklearn.preprocessing.StandardScaler.transform', return_value=SCALED_DATA)
 def test_givenData_whenGettingScaleData_thenTheScaleDataIsLoaded(scaler_mock, input_data_matrix):
     input_data_matrix.data = DATAMATRIX_DATAFRAME
-    assert input_data_matrix.get_scale_data().equals(SCALED_DATA)
+    assert input_data_matrix.get_scaled_data().equals(SCALED_DATA)
 
 
 def test_givenNoData_whenLoadSampleWithIdList_thenThrowException(input_data_matrix):
@@ -55,4 +53,4 @@ def test_givenNoData_whenLoadSampleWithIdList_thenThrowException(input_data_matr
 
 def test_givenNoData_whenGettingScaledData_thenThrowException(input_data_matrix):
     with pytest.raises(RuntimeError):
-        input_data_matrix.get_scale_data()
+        input_data_matrix.get_scaled_data()

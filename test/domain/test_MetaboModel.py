@@ -2,7 +2,7 @@ import pytest
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.tree import DecisionTreeClassifier
 
-from .TestsUtility import FOLDS, DATA, CLASSES, PARAMETER_GRID
+from ..TestsUtility import FOLDS, DATA, CLASSES, PARAMETER_GRID
 from ...metabodashboard.domain.MetaboModel import MetaboModel
 
 

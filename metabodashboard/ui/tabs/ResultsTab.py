@@ -2,16 +2,18 @@ import os
 import time
 
 import dash_bootstrap_components as dbc
+import dash_interactive_graphviz as dg
 import numpy as np
 from dash import html, dcc, Output, Input, State, dash, Dash
 from matplotlib import pyplot as plt
 from sklearn import tree
 
 from .MetaTab import MetaTab
-from ...service import Plots, Utils
 from ...domain import MetaboController
+from ...service import Plots, Utils
 
 PATH_TO_BIGRESULTS = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "big_results.p"))
+
 
 class ResultsTab(MetaTab):
     def __init__(self, app: Dash, metabo_controller: MetaboController):
@@ -194,7 +196,7 @@ class ResultsTab(MetaTab):
 
                                    ])
 
-        __DTTreeTab = dbc.Tab(id="DTTT" ,className="sub_tab", label="DT Tree", disabled=True)
+        __DTTreeTab = dbc.Tab(id="DTTT", className="sub_tab", label="DT Tree", disabled=True)
 
         ___featuresTable = html.Div(className="table_features", children=[
             html.H6("Top 10 features sorted by importance"),
@@ -208,10 +210,10 @@ class ResultsTab(MetaTab):
 
         ])
         ___stripChart = html.Div(className="umap_plot_and_title",
-                           children=[
-                               html.Div(className="title_and_help",
-                                        children=[
-                                            html.H6("StripChart of features"),
+                                 children=[
+                                     html.Div(className="title_and_help",
+                                              children=[
+                                                  html.H6("StripChart of features"),
                                                   dbc.Button("[?]",
                                                              className="text-muted btn-secondary popover_btn",
                                                              id="help_stripChart"),
@@ -223,16 +225,17 @@ class ResultsTab(MetaTab):
                                                       id="pop_help_stripChart",
                                                       is_open=False,
                                                       target="help_stripChart")
-                                                  ]),
-                               dbc.Select(id="features_dropdown",
-                                          className="form_select",
-                                          options=[{"label": "None", "value": "None"}],
-                                          value="None",
-                                          ),
-                               dcc.Loading(dcc.Graph(id="features_stripChart"),
-                                           type="dot", color="#13BD00"),
+                                              ]),
+                                     dbc.Select(id="features_dropdown",
+                                                className="form_select",
+                                                options=[{"label": "None", "value": "None"}],
+                                                value="None",
+                                                style={"width": "35%"}
+                                                ),
+                                     dcc.Loading(dcc.Graph(id="features_stripChart"),
+                                                 type="dot", color="#13BD00"),
 
-                           ])
+                                 ])
 
         __featuresResultsTab = dbc.Tab(className="sub_tab",
                                        label="Features",
@@ -489,7 +492,7 @@ class ResultsTab(MetaTab):
                 return dash.no_update
 
         @self.app.callback(
-             Output("features_stripChart", "figure"),
+            Output("features_stripChart", "figure"),
             [Input("features_dropdown", "value")],
             [State("ml_dropdown", "value"),
              State("design_dropdown", "value")]
@@ -513,15 +516,13 @@ class ResultsTab(MetaTab):
             if n_clicks >= 1:
                 if algo == "DecisionTree":
                     model = self.r[design_name][algo].results["best_model"]
-                    classes = self.r[design_name][algo].results["classes"]
-                    fig = plt.figure(figsize=(25, 20))
+                    classes = list(set(self.r[design_name][algo].results["classes"]))
                     plt.margins(0.05)
-                    _ = tree.plot_tree(model,
-                                       # feature_names=iris.feature_names,
-                                       class_names=classes,
-                                       filled=True)
-                    img_path = os.path.join(os.path.dirname(__file__), "..", "assets", "DecisionTree.png")
-                    fig.savefig(img_path, bbox_inches='tight')
+                    df = self.r[design_name][algo].results["features_table"]
+                    df.sort_index(inplace=True)
+                    features_name = list(df["features"])
+                    dot_data = tree.export_graphviz(model, out_file=None, class_names=classes, feature_names=features_name, filled=True, rounded=True,
+                                                    special_characters=True)
 
-                    return False, html.Img(src=self.app.get_asset_url("../assets/DecisionTree.png"), style={'width': '100%'})
+                    return False, dg.DashInteractiveGraphviz(id="DTTT", dot_source=dot_data)
             return True, ""

@@ -1,18 +1,16 @@
 from unittest.mock import patch, mock_open
 
 import pytest
-from sklearn.model_selection import train_test_split
 
 from ...metabodashboard.domain import SplitGroup
 
-from .TestsUtility import MOCKED_METADATA, TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, CLASSES_DESIGN, EXPERIMENT_NAME, \
-    SPLITS
+from ..TestsUtility import MOCKED_METADATA, TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, CLASSES_DESIGN, SPLITS, SELECTED_TARGETS
 
 
 @pytest.fixture
 def input_splits():
     with patch('builtins.open', new_callable=mock_open()):
-        return SplitGroup(MOCKED_METADATA, TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, CLASSES_DESIGN)
+        return SplitGroup(MOCKED_METADATA, SELECTED_TARGETS, TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, CLASSES_DESIGN)
 
 
 @patch('pickle.load', side_effect=SPLITS)

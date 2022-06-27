@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import Tuple, Union, Optional
+from typing import Tuple, Optional, Iterable
 
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -40,15 +40,20 @@ class DataMatrix:
         """
         return self._hash
 
-    def get_scale_data(self) -> pd.DataFrame:
+    def get_scaled_data(self, selected_ids: Iterable = None) -> pd.DataFrame:
         """
         Scale the dataframe to be ready for ML
         :param data: the dataframe to scale
+        :param selected_ids: the list of IDs to scale
         :return: the scaled dataframe
         """
         if self.data is None:
             raise RuntimeError("Need to load data from file before scaling")
-        return pd.DataFrame(self._scaler.transform(self.data), columns=self.data.columns)
+        if selected_ids is not None:
+            df = self.data.loc[selected_ids, :]
+        else:
+            df = self.data
+        return pd.DataFrame(self._scaler.transform(df), columns=self.data.columns)
 
     def _load_and_format(self, path, data=None, is_raw=False, from_base64=True) -> Tuple[
         pd.DataFrame, Optional[pd.DataFrame]]:

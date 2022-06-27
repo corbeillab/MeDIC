@@ -1,7 +1,7 @@
 import pytest
 
 from ...metabodashboard.domain import ResultsDT
-from .TestsUtility import NUMBER_OF_SPLITS, RESULTS
+from ..TestsUtility import NUMBER_OF_SPLITS, RESULTS
 
 
 @pytest.fixture

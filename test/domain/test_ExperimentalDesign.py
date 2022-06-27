@@ -1,13 +1,11 @@
-from unittest.mock import patch, Mock, mock_open
+from unittest.mock import patch, mock_open
 
-import pandas as pd
 import pytest as pytest
-from sklearn.model_selection import train_test_split
 
-from ...metabodashboard.domain import ExperimentalDesign, MetaData, SplitGroup
+from ...metabodashboard.domain import ExperimentalDesign
 
-from .TestsUtility import MOCKED_METADATA, CLASSES_DESIGN, TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, \
-    EXPERIMENT_NAME, EXPERIMENT_FULL_NAME, SPLITS
+from ..TestsUtility import MOCKED_METADATA, CLASSES_DESIGN, TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, \
+    EXPERIMENT_NAME, EXPERIMENT_FULL_NAME, SPLITS, SELECTED_TARGETS
 
 
 @pytest.fixture
@@ -52,3 +50,8 @@ def test_givenAnExperimentalDesignWithNoSelectedModels_whenGetResults_thenRaiseR
     with pytest.raises(RuntimeError) as e_info:
         input_experimental_design.get_results()
         assert "Trying to set models before setting splits parameters" in str(e_info.value)
+
+
+def test_givenAnExperimentalDesign_whenGetSelectedTargetsName_thenTheSelectedTargetsNameAreCorrect(input_experimental_design):
+    assert input_experimental_design.get_selected_targets_name() == SELECTED_TARGETS
+    

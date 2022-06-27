@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pandas as pd
 from abc import abstractmethod
@@ -49,7 +51,7 @@ class Results:
 
     def add_results_from_one_algo_on_one_split(self, model: sklearn, scaled_data: pd.DataFrame, classes: list,
                                                y_train_true: list, y_train_pred: list,
-                                               y_test_true: list, y_test_pred: list, algo_name: str, split_number: str):
+                                               y_test_true: list, y_test_pred: list, split_number: str, train_ids: List[str], test_ids: List[str]):
         """
         Besoin modèle pour extraire features, features importance
         Besoin des y_true, des y_pred, des noms de samples pour le train et le test
@@ -80,7 +82,7 @@ class Results:
         self.results[split_number]["test_roc_auc"] = roc_auc_score(binary_y_test_true, binary_y_test_pred)
         self.results[split_number]["failed_samples"] = self.produce_always_wrong_samples(y_train_true, y_train_pred,
                                                                                          y_test_true, y_test_pred,
-                                                                                         split_number)
+                                                                                         split_number, train_ids, test_ids)
         if self.results[split_number]["test_accuracy"] > self.best_acc:
             self.best_acc = self.results[split_number]["test_accuracy"]
             self.results["best_model"] = model
@@ -167,8 +169,9 @@ class Results:
         nbr_train = len(y_train_true)
         nbr_test = len(y_test_true)
         tot = nbr_train + nbr_test
-        nom_stats = ["Number of samples (train:test)"]
-        valeurs_stats = [str(tot) + " (" + str(int(nbr_train / tot * 100)) + ":" + str(int(nbr_test / tot * 100)) + ")"]
+        nom_stats = ["Number of samples", "Train-test repartition"]
+        valeurs_stats = [str(tot)]
+        valeurs_stats.append(str(int(nbr_train / tot * 100)) + " - " + str(int(nbr_test / tot * 100)))
         y = y_train_true + y_test_true
         c = Counter(y)
         for k in c.keys():
@@ -284,19 +287,19 @@ class Results:
         """
         important_features = list(feature_df["features"])[:10]
         df = data.loc[:, important_features]
+        print(df)
+        print(len(self.results["classes"]))
         df["targets"] = self.results["classes"]
         return df
 
-    def produce_always_wrong_samples(self, y_train_true, y_train_pred, y_test_true, y_test_pred, split_number):
+    def produce_always_wrong_samples(self, y_train_true, y_train_pred, y_test_true, y_test_pred, split_number,
+                                     train_ids: List[str], test_ids: List[str]):
         """
         return: two dicts with sample names as keys, and wrongly predicted as values (0:good pred, 1:bad pred)
         """
 
-        with open(os.path.join(DUMP_PATH, self.design_name + "_split_{}.p".format(split_number)), "rb") as split_file:
-            samples_list = pickle.load(split_file)[:2]  # append list of X_train & X_test samples names
-
-        train_samples = {t: 0 for t in samples_list[0]}
-        test_samples = {t: 0 for t in samples_list[1]}
+        train_samples = {t: 0 for t in train_ids}
+        test_samples = {t: 0 for t in test_ids}
 
         labels = {l: idx for idx, l in enumerate(list(set(y_train_true)))}
 
@@ -307,12 +310,12 @@ class Results:
         y_test_pred = [labels[l] for l in y_test_pred]
 
         train_nbr = [sum(x) for x in list(zip(y_train_true, y_train_pred))]
-        for i, n in enumerate(samples_list[0]):
+        for i, n in enumerate(train_ids):
             if train_nbr[i] == 1:
                 train_samples[n] += 1
 
         test_nbr = [sum(x) for x in list(zip(y_test_true, y_test_pred))]
-        for i, n in enumerate(samples_list[1]):
+        for i, n in enumerate(test_ids):
             if test_nbr[i] == 1:
                 test_samples[n] += 1
 

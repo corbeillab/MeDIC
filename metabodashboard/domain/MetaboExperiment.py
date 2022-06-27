@@ -161,8 +161,10 @@ class MetaboExperiment:
         self._data_matrix.load_data()
         for _, experimental_design in self.experimental_designs.items():
             results = experimental_design.get_results()
+            selected_targets_name = experimental_design.get_selected_targets_name()
+            selected_targets, selected_ids = self._metadata.get_selected_targets_and_ids(selected_targets_name)
             classes = Utils.load_classes_from_targets(experimental_design.get_classes_design(),
-                                                      self._metadata.get_targets())
+                                                      selected_targets)
             for split_index, split in experimental_design.all_splits():
                 x_train = self._data_matrix.load_samples_corresponding_to_IDs_in_splits(split[X_TRAIN_INDEX])
                 x_test = self._data_matrix.load_samples_corresponding_to_IDs_in_splits(split[X_TEST_INDEX])
@@ -174,11 +176,14 @@ class MetaboExperiment:
                     y_train_pred = best_model.predict(x_train)
                     y_test_pred = best_model.predict(x_test)
                     results[model_name].add_results_from_one_algo_on_one_split(best_model,
-                                                                               self._data_matrix.get_scale_data(),
+                                                                               self._data_matrix.get_scaled_data(
+                                                                                   selected_ids),
                                                                                classes, split[y_TRAIN_INDEX],
                                                                                y_train_pred, split[y_TEST_INDEX],
-                                                                               y_test_pred, model_name,
-                                                                               str(split_index))
+                                                                               y_test_pred,
+                                                                               str(split_index),
+                                                                               split[X_TRAIN_INDEX],
+                                                                               split[X_TEST_INDEX])
         self._data_matrix.unload_data()
 
     def get_results(self, classes_design: str, algo_name) -> dict:

@@ -3,10 +3,10 @@ from unittest.mock import patch, mock_open
 import pytest as pytest
 from sklearn.model_selection import RandomizedSearchCV
 
-from .TestsUtility import TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, CLASSES_DESIGN, EXPERIMENT_NAME, MOCKED_METADATA, \
+from ..TestsUtility import TRAIN_TEST_PROPORTION, NUMBER_OF_SPLITS, CLASSES_DESIGN, EXPERIMENT_NAME, MOCKED_METADATA, \
     MOCKED_METABOEXPERIMENT_DTO, MOCKED_DATAMATRIX, EXPERIMENT_DESIGNS, \
     CV_TYPE, ENCODED_DATAMATRIX_DATAFRAME, ENCODED_METADATA_DATAFRAME, METADATA_DATAFRAME, DATAMATRIX_DATAFRAME, \
-    assert_dataframe_approximately_equal, SAMPLES_ID_COLUMN, EXP_RESULTS
+    assert_dataframe_approximately_equal, EXP_RESULTS
 from ...metabodashboard.domain import MetaboExperiment
 
 

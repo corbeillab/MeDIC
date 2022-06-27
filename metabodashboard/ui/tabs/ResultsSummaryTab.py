@@ -75,7 +75,7 @@ class ResultsSummaryTab(MetaTab):
 
         return dbc.Tab(className="global_tab",
 
-                       label="Results Summary", children=[
+                       label="Results aggregated", children=[
                 html.Div(className="fig_group", children=[
                     html.Div(className="column_content",
                              # WARNING !! : _infoFigure is not with the card, it's in a separate column

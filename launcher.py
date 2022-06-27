@@ -3,7 +3,6 @@ import logging
 import os
 import platform
 import re
-import shutil
 import subprocess
 import sys
 import threading
@@ -252,7 +251,7 @@ def env_dependencies_verification():
     with open(REQUIREMENT_FILE, 'r') as f:
         line = f.readline()
         while line:
-            line = line.strip()  # permet de retirer les retour à la ligne
+            line = line.strip().replace("_", "-")  # remove endline and replace _ by -
             if re.match(regex, line):
                 line = re.findall(regex, line)[0][0]
             if line not in actual_package_installed_list:
@@ -265,11 +264,13 @@ def env_dependencies_verification():
 
 def move_files_from_clone_to_project_folder():
     all_content = os.listdir('./temporary_installation_folder/')
+    here_content = os.listdir('./')
 
     for item in all_content:
-        if item == "launcher.py":
-            os.remove('.' + "/launcher.py")
-        shutil.move("./temporary_installation_folder/" + item, ".")
+        for here_item in here_content:
+            if item == here_item:
+                os.remove(f"./{item}")
+        os.rename("./temporary_installation_folder/" + item, "./" + item)
 
 
 def install_from_github_on_os():
@@ -292,7 +293,7 @@ def pull_from_github():
     logging.info("Pulling project file from github")
     loader = Loader(desc="Updating project...").start()
     if check_if_git_folder_exist():
-        subprocess.check_call(f"git pull -q https://{RO_TEMP_TOKEN + '@'}github.com/ElinaFF/MetaboDashboard",
+        subprocess.check_call(f"git pull -q https://github.com/corbeillab/MeDIC",
                               shell=True, stdout=subprocess.DEVNULL)
         logging.info("Project updated")
         loader.stop()
