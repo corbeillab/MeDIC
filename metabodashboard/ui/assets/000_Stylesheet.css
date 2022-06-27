@@ -1,0 +1,440 @@
+/********************
+*      General      *
+********************/
+
+body{
+    /*background-color: #f9f9fa;*/
+}
+
+H6{
+    margin:5px;
+}
+
+H4{
+    margin-bottom:1em;
+}
+
+.popover{
+    transition-duration:0s;
+    font-size:1em;
+    border: 1px solid #13BD00;
+}
+.bs-popover-right > .arrow::before, .bs-popover-auto[x-placement^="right"] > .arrow::before{
+    border-right-color:#13BD00;
+}
+
+.title_and_help{
+    display:flex;
+    flex-direction:row;
+}
+
+.column_content{
+    width:50%;
+}
+
+.etoile{
+    color: red;
+}
+
+#loading-output-1{
+    margin-top:2em;
+}
+
+
+/*******************
+*       Forms      *
+*******************/
+.title_and_form{
+    display:flex;
+    flex-direction:column;
+    width:40%;
+    margin-top:1em;
+    margin-left:5%;
+    margin-right:5%;
+}
+
+.title_and_form_mini{
+    display:flex;
+    flex-direction:column;
+    width:50%;
+    /*margin-left:5%;*/
+    /*margin-right:5%;*/
+}
+
+.form_labels{
+    text-transform : uppercase;
+}
+
+.radio_on_line{
+    display:inline-block;
+}
+
+.form_field{
+    margin-bottom:2em;
+}
+
+.form_input_text{
+    font-size:1em;
+}
+
+.form_select{
+    font-size:1em;
+    width:15%;
+}
+
+.form_select_large{
+    font-size:1em;
+    width:100%;
+    margin-top:1em;
+    margin-bottom:1em;
+}
+
+
+
+/*************
+*   Tables   *
+*************/
+th{
+    font-size: 1em;
+}
+
+.table_features{
+    width:40%;
+}
+
+#overview_table th{
+    font-size:1em;
+    padding-left:1em;
+    text-align:center;
+}
+
+#table_exp_info {
+    margin-left: 0.5em;
+}
+
+#table_exp_info tr{
+    line-height: 0.25;
+}
+
+#table_exp_info td{
+    border-bottom: none;
+}
+
+
+
+/****************
+*     Cards     *
+****************/
+.cards_info{
+    /*margin-top:1em;*/
+    margin-bottom:2em;
+}
+
+.card_body_fig{
+    margin-left:2em;
+    padding: 1em;
+}
+
+
+
+/****************
+*    Buttons    *
+****************/
+.button_box{
+    width:100%;
+    display:flex;
+    justify-content:right;
+}
+
+.btn{
+    margin:1.5em;
+    font-size:1em;
+}
+
+.popover_btn{
+    margin:0 1.5em 0 1.5em;
+}
+
+.custom_buttons{
+    margin:1.5em;
+    font-size:1em;
+    background-color:#00143e;
+}
+
+#split_dataset_button{
+    width:25%;
+}
+
+#load_ML_results_button{
+    width:15%;
+}
+
+#compute_global_metrics{
+    width:50%;
+    margin-left:0.5em;
+}
+
+#help_accPlot, #help_umapPlot, #help_pcaPlot, #help_BxPlot, #help_heatmapPlot{
+    font-size:1em;
+}
+
+#btn_add_design_exp{
+    width:20%;
+}
+
+.push {
+    margin-left: auto;
+}
+
+
+/*************
+*    Toast   *
+*************/
+
+#toast_success_files_list_created{
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    width:350px;
+    font-size:1em;
+    border: 1px solid rgba(19,189,0,1);
+}
+
+/*******************
+* Section specific *
+*******************/
+/* Progress bars */
+#progress{
+    height:2em;
+}
+
+/* Title of the dashboard*/
+#title_container{
+    display:flex;
+    height:5em;
+    margin:auto auto 0 auto;
+}
+
+#title_bg{
+    background-color:#00143e;
+    min-width:35em;
+    max-width: 40%;
+    padding:1em;
+    margin:0.5em;
+}
+
+#title{
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-item:center;
+    margin:auto 1em 0 1em;
+}
+
+
+/* Tabs & Tab */
+#custom_big_tabs{
+    width:96%;
+    margin:auto auto 2em auto;
+}
+
+.nav-tabs .nav-link{
+    background-color: rgba(255,255,255,1);
+    border-color: #fff #fff #eceeef #fff;
+}
+
+.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
+    /*color: rgba(0,162,254,1);*/  /*#00A2FE*/
+    color: rgba(19,189,0,1);  /*#13BD00*/
+}
+
+.global_tab{
+    display:flex;
+    width:96%;
+}
+
+.tab-parent{
+    width:100%;
+    margin:auto;
+    display:flex;
+}
+
+.tab-container{
+    min-width:11%;
+    /*max-width:15%;*/
+}
+
+.tab-content{
+    max-width:100%;
+    display:flex;
+    justify-content:center;
+    flex-direction:row;
+    flex-wrap:wrap;
+    /*margin: 2em 2em 2em 2em;*/
+}
+
+.tab-content--vert{
+    flex-direction:row;
+}
+
+
+/* Choices options Results page */
+.Results_info{
+    display:flex;
+    flex-direction:row;
+}
+
+#menu_results{
+    display:flex;
+    flex-direction:row;
+    justify-content:space-around;
+}
+
+.results_menu_dropdowns{
+    width:72%;
+    margin-right:3%;
+    margin-bottom:4em;
+}
+
+.dropdowns{
+    display:flex;
+    margin:auto 15px;
+    align-item:lines;
+}
+
+#design_dropdown{
+    min-width:10em;
+    /*margin-top:3px;*/
+}
+
+#ml_dropdown{
+    min-width:15em;
+    /*margin-top:3px;*/
+}
+
+
+/* Results sub tabs */
+#main_plots-content{
+    width:100%;
+}
+
+.custom_sub_tabs{
+    margin-bottom:2em;
+}
+
+.sub_tab{
+    width:100%;
+}
+
+.acc_plot_and_title{
+    width:72%;
+    margin-right:3%;
+}
+
+.umap_plot_and_title{
+    width:60%;
+    margin-left:3%;
+}
+
+.fig_group{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    justify-content:center;
+    flex-grow:1;
+    margin-top:1em;
+    margin-bottom:1em;
+}
+
+.fig_group_col{
+    display:flex;
+    align-items:flex-start;
+    flex-grow:1;
+    margin-bottom:1em;
+    flex-direction:column;
+}
+
+.fig_group_mini{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    justify-content:center;
+    flex-grow:1;
+    margin-top:1em;
+    /*margin-bottom:1em;*/
+}
+
+.fig_group_all_width{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.pca_plot_and_title{
+    width:70%;
+    margin-left:3%;
+}
+
+.bxplot_plot_select_and_title{
+    width:37%;
+    margin-right:3%;
+}
+
+
+
+
+
+
+/************************
+*    Not used anymore   *
+************************/
+.square_bg_effect{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    margin: 0 2em 2em 2em;
+    padding: 1em 1.5em 1.5em 1.5em;
+    background-color:#f9f9f9;
+    box-shadow: 2px 2px 2px lightgrey;
+    flex-grow:1;
+}
+
+.square_bg_effect H6{
+    margin-top:5px;
+}
+
+.keep_right_div{
+    display:flex;
+    justify-content:flex-end;
+}
+
+.help_icon{
+    overflow:visible;
+    width:1.5em;
+    height:1.5em;
+}
+
+.help_img{
+    width:100%;
+    height:100%;
+}
+
+.help_bubble{
+    padding:1em;
+    width:30em;
+    height:10em;
+    background-color:white;
+    box-shadow: 0px 0px 15px #3E3E3E;
+    overflow-y:auto;
+
+    position:relative;
+    bottom: 13em;
+    right: 30em;
+    opacity:0;
+    visibility:hidden;
+}
+
+.help_icon:hover .help_bubble{
+    opacity:0.9;
+    visibility:visible;
+    z-index:999;
+}

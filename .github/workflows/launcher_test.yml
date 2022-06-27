@@ -1,0 +1,59 @@
+#name: launcher test
+#
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+#
+#env:
+#  REPO: https://ElinaFF:${{secrets.GITHUB_TOKEN}}@github.com/ElinaFF/MetaboDashboard.git
+#
+#jobs:
+#  with_source_code:
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        os: [ ubuntu-latest, windows-latest]
+#        python-version: ["3.8", "3.9", "3.10"]
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: launch launcher.py
+#      run: |
+#        python launcher.py --no-launch
+#
+#  without_source_code_linux:
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        python-version: [ "3.8", "3.9", "3.10" ]
+#    runs-on: ubuntu-latest
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: setup without source code
+#      run: |
+#        mkdir only_launcher
+#        cp launcher.py only_launcher/launcher.py
+#    - name: launch launcher.py
+#      run: |
+#        cd only_launcher
+#        python launcher.py --no-launch
+#
+#  without_source_code_windows:
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        python-version: [ "3.8", "3.9", "3.10" ]
+#    runs-on: windows-latest
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: setup without source code
+#      run: |
+#        git clone ${{env.REPO}} tmp
+#        mkdir only_launcher
+#        copy tmp/launcher.py only_launcher/launcher.py
+#    - name: launch launcher.py
+#      run: |
+#        cd only_launcher
+#        python launcher.py --no-launch
