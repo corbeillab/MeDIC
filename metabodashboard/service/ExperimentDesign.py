@@ -1,12 +1,9 @@
 DATA_MATRIX = "Data\\Matrix_normalised_pos.csv"
 
-#Cas, Temoin, TC
-EXPERIMENT_DESIGNS={
-    "Ctrl_vs_Case":{
-        "classes": {
-            "Controls":["Temoin"],
-            "Cases": ["Cas"]
-        },
+# Cas, Temoin, TC
+EXPERIMENT_DESIGNS = {
+    "Ctrl_vs_Case": {
+        "classes": {"Controls": ["Temoin"], "Cases": ["Cas"]},
         "TestSize": 0.2,
     },
     # "Control vs TC":{

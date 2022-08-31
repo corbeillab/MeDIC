@@ -1,24 +1,28 @@
+import os
+from abc import abstractmethod
+from collections import Counter
 from typing import List
 
 import numpy as np
 import pandas as pd
-from abc import abstractmethod
-import os
-import pickle
-
 import sklearn
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, \
-    recall_score, f1_score, roc_auc_score, balanced_accuracy_score
-
-from collections import Counter
 import umap
 from sklearn.decomposition import PCA
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+    balanced_accuracy_score,
+)
 
-from . import MetaData
 from ..service import Utils
 
 ROOT_PATH = os.path.dirname(__file__)
 DUMP_PATH = os.path.join(ROOT_PATH, os.path.join("dumps", "splits"))
+
 
 class Results:
     """
@@ -49,9 +53,19 @@ class Results:
         """
         raise NotImplementedError()
 
-    def add_results_from_one_algo_on_one_split(self, model: sklearn, scaled_data: pd.DataFrame, classes: list,
-                                               y_train_true: list, y_train_pred: list,
-                                               y_test_true: list, y_test_pred: list, split_number: str, train_ids: List[str], test_ids: List[str]):
+    def add_results_from_one_algo_on_one_split(
+        self,
+        model: sklearn,
+        scaled_data: pd.DataFrame,
+        classes: list,
+        y_train_true: list,
+        y_train_pred: list,
+        y_test_true: list,
+        y_test_pred: list,
+        split_number: str,
+        train_ids: List[str],
+        test_ids: List[str],
+    ):
         """
         Besoin modèle pour extraire features, features importance
         Besoin des y_true, des y_pred, des noms de samples pour le train et le test
@@ -64,41 +78,91 @@ class Results:
         self.results[split_number]["y_test_pred"] = y_test_pred
         self.results[split_number]["y_train_true"] = y_train_true
         self.results[split_number]["y_train_pred"] = y_train_pred
-        self.results[split_number]["train_accuracy"] = accuracy_score(y_train_true, y_train_pred)
-        self.results[split_number]["test_accuracy"] = accuracy_score(y_test_true, y_test_pred)
-        self.results[split_number]["balanced_train_accuracy"] = balanced_accuracy_score(y_train_true, y_train_pred)
-        self.results[split_number]["balanced_test_accuracy"] = balanced_accuracy_score(y_test_true, y_test_pred)
-        binary_y_train_true = Utils.get_binary(y_train_true, classes)
-        binary_y_train_pred = Utils.get_binary(y_train_pred, classes)
-        binary_y_test_true = Utils.get_binary(y_train_true, classes)
-        binary_y_test_pred = Utils.get_binary(y_train_pred, classes)
-        self.results[split_number]["train_precision"] = precision_score(binary_y_train_true, binary_y_train_pred)
-        self.results[split_number]["test_precision"] = precision_score(binary_y_test_true, binary_y_test_pred)
-        self.results[split_number]["train_recall"] = recall_score(binary_y_train_true, binary_y_train_pred)
-        self.results[split_number]["test_recall"] = recall_score(binary_y_test_true, binary_y_test_pred)
-        self.results[split_number]["train_f1"] = f1_score(binary_y_train_true, binary_y_train_pred)
-        self.results[split_number]["test_f1"] = f1_score(binary_y_test_true, binary_y_test_pred)
-        self.results[split_number]["train_roc_auc"] = roc_auc_score(binary_y_train_true, binary_y_train_pred)
-        self.results[split_number]["test_roc_auc"] = roc_auc_score(binary_y_test_true, binary_y_test_pred)
-        self.results[split_number]["failed_samples"] = self.produce_always_wrong_samples(y_train_true, y_train_pred,
-                                                                                         y_test_true, y_test_pred,
-                                                                                         split_number, train_ids, test_ids)
+        self.results[split_number]["train_accuracy"] = accuracy_score(
+            y_train_true, y_train_pred
+        )
+        self.results[split_number]["test_accuracy"] = accuracy_score(
+            y_test_true, y_test_pred
+        )
+        self.results[split_number]["balanced_train_accuracy"] = balanced_accuracy_score(
+            y_train_true, y_train_pred
+        )
+        self.results[split_number]["balanced_test_accuracy"] = balanced_accuracy_score(
+            y_test_true, y_test_pred
+        )
+        unique_classes = list(set(classes))
+        binary_y_train_true = Utils.get_binary(y_train_true, unique_classes)
+        binary_y_train_pred = Utils.get_binary(y_train_pred, unique_classes)
+        binary_y_test_true = Utils.get_binary(y_test_true, unique_classes)
+        binary_y_test_pred = Utils.get_binary(y_test_pred, unique_classes)
+        self.results[split_number]["train_precision"] = precision_score(
+            binary_y_train_true, binary_y_train_pred
+        )
+        self.results[split_number]["test_precision"] = precision_score(
+            binary_y_test_true, binary_y_test_pred
+        )
+        self.results[split_number]["train_recall"] = recall_score(
+            binary_y_train_true, binary_y_train_pred
+        )
+        self.results[split_number]["test_recall"] = recall_score(
+            binary_y_test_true, binary_y_test_pred
+        )
+        self.results[split_number]["train_f1"] = f1_score(
+            binary_y_train_true, binary_y_train_pred
+        )
+        self.results[split_number]["test_f1"] = f1_score(
+            binary_y_test_true, binary_y_test_pred
+        )
+        self.results[split_number]["train_roc_auc"] = roc_auc_score(
+            binary_y_train_true, binary_y_train_pred
+        )
+        self.results[split_number]["test_roc_auc"] = roc_auc_score(
+            binary_y_test_true, binary_y_test_pred
+        )
+        self.results[split_number][
+            "failed_samples"
+        ] = self.produce_always_wrong_samples(
+            y_train_true,
+            y_train_pred,
+            y_test_true,
+            y_test_pred,
+            split_number,
+            train_ids,
+            test_ids,
+        )
         if self.results[split_number]["test_accuracy"] > self.best_acc:
             self.best_acc = self.results[split_number]["test_accuracy"]
             self.results["best_model"] = model
-        self.results[split_number]["feature_importances"] = self._get_features_importance(model)
-        self.results[split_number]["Confusion_matrix"] = self._produce_conf_matrix(y_test_true, y_test_pred)
+        self.results[split_number][
+            "feature_importances"
+        ] = self._get_features_importance(model)
+        self.results[split_number]["Confusion_matrix"] = self._produce_conf_matrix(
+            y_test_true, y_test_pred
+        )
 
         if split_number == self.splits_number[-1]:
-            self.results["info_expe"] = self._produce_info_expe(y_train_true, y_test_true)
+            self.results["info_expe"] = self._produce_info_expe(
+                y_train_true, y_test_true
+            )
             print("------> last split, start features importance")
             self.results["features_table"] = self.produce_features_importance_table()
             self.results["accuracies_table"] = self.produce_accuracy_plot_all()
             self.results["classes"] = classes
-            self.results["umap_data"] = self._produce_UMAP(scaled_data, self.results["features_table"])
-            self.results["pca_data"] = self._produce_PCA(scaled_data, self.results["features_table"])
+            self.results["umap_data"] = self._produce_UMAP(
+                scaled_data, self.results["features_table"]
+            )
+            self.results["pca_data"] = self._produce_PCA(
+                scaled_data, self.results["features_table"]
+            )
             self.results["metrics_table"] = self.produce_metrics_table()
-            self.results["features_stripchart"] = self.features_strip_chart_abundance_each_class(self.results["features_table"], scaled_data)
+            self.results[
+                "features_stripchart"
+            ] = self.features_strip_chart_abundance_each_class(
+                self.results["features_table"], scaled_data
+            )
+            self.results["features_2d_and_3d"] = self.produce_features_2d_and_3d(
+                self.results["features_table"], scaled_data
+            )
 
     def set_feature_names(self, x: pd.DataFrame):
         """
@@ -126,26 +190,37 @@ class Results:
 
     def _produce_conf_matrix(self, y_test_true: list, y_test_pred: list):
         labels = list(set(y_test_true))
-        return labels, confusion_matrix(y_test_true, y_test_pred, labels=labels, normalize="true")
+        return labels, confusion_matrix(
+            y_test_true, y_test_pred, labels=labels, normalize="true"
+        )
 
     def _produce_UMAP(self, X: pd.DataFrame, features_df: pd.DataFrame):
-        nbr_feat = [10, 40, 100]
+        nbr_feat = [5, 10, 40, 100]
         umaps = []
         for nbr in nbr_feat:
             selected_feat = features_df["features"][:nbr]
             selected_x = X.loc[:, selected_feat]
-            print(list(zip(selected_x.index, self.results["classes"])))
             selected_x = selected_x.to_numpy()
-            umap_data = umap.UMAP(n_components=2, init='random', random_state=13)
+            umap_data = umap.UMAP(n_components=2, init="random", random_state=13)
             umaps.append(umap_data.fit_transform(selected_x))
+
+        # Do the umap for all used metrics
+        selected_feat = features_df.loc[features_df["times_used"] > 0]["features"]
+        if selected_feat.shape[0] < 3:
+            selected_feat = features_df["features"][:3]
+        selected_x = X.loc[:, selected_feat]
+        selected_x = selected_x.to_numpy()
+        umap_data = umap.UMAP(n_components=2, init="random", random_state=13)
+        umaps.append(umap_data.fit_transform(selected_x))
+
         # Redo the umap but on all the data
         selected_x = X.to_numpy()
-        umap_data = umap.UMAP(n_components=2, init='random', random_state=13)
+        umap_data = umap.UMAP(n_components=2, init="random", random_state=13)
         umaps.append(umap_data.fit_transform(selected_x))
         return umaps
 
     def _produce_PCA(self, X: pd.DataFrame, features_df: pd.DataFrame):
-        nbr_feat = [10, 40, 100]
+        nbr_feat = [5, 10, 40, 100]
         pcas = []
 
         for nbr in nbr_feat:
@@ -155,7 +230,17 @@ class Results:
 
             pca = PCA(n_components=2)
             pcas.append(pca.fit_transform(x))
-        # Redo the umap but on all the data
+
+        # Do the PCA for all used metrics
+        selected_feat = features_df.loc[features_df["times_used"] > 0]["features"]
+        if selected_feat.shape[0] < 3:
+            selected_feat = features_df["features"][:3]
+
+        x = X.loc[:, selected_feat]
+        pca = PCA(n_components=2)
+        pcas.append(pca.fit_transform(x))
+
+        # Redo the PCA but on all the data
         x = X.to_numpy()
         pca = PCA(n_components=2)
         pcas.append(pca.fit_transform(x))
@@ -171,7 +256,9 @@ class Results:
         tot = nbr_train + nbr_test
         nom_stats = ["Number of samples", "Train-test repartition"]
         valeurs_stats = [str(tot)]
-        valeurs_stats.append(str(int(nbr_train / tot * 100)) + " - " + str(int(nbr_test / tot * 100)))
+        valeurs_stats.append(
+            str(int(nbr_train / tot * 100)) + " - " + str(int(nbr_test / tot * 100))
+        )
         y = y_train_true + y_test_true
         c = Counter(y)
         for k in c.keys():
@@ -188,14 +275,22 @@ class Results:
         Est donnée à la fonction de plotting correspondante (après que l'instance ait été complétée avec tous
         les résultats de splits)
         """
-        features, times_used_all_splits, importance_or_usage_or_ = self._aggregate_features_info()
-        print("--> aggregating done, importances : {}".format(importance_or_usage_or_))
+        (
+            features,
+            times_used_all_splits,
+            importance_or_usage_or_,
+        ) = self._aggregate_features_info()
+        # print("--> aggregating done, importances : {}".format(importance_or_usage_or_))
 
-        d = {"features": features, "times_used": times_used_all_splits, "importance_usage": importance_or_usage_or_}
+        d = {
+            "features": features,
+            "times_used": times_used_all_splits,
+            "importance_usage": importance_or_usage_or_,
+        }
         df = pd.DataFrame(data=d)
         df["times_used"] = pd.to_numeric(df["times_used"])
         df["importance_usage"] = pd.to_numeric(df["importance_usage"])
-        df = df.sort_values(by=['importance_usage'], ascending=False)
+        df = df.sort_values(by=["importance_usage"], ascending=False)
         return df
 
     def produce_accuracy_plot_all(self):
@@ -222,7 +317,14 @@ class Results:
 
     # TODO: faire une fonction qui produce metrics table pour tous les splits
     def produce_metrics_table(self):
-        metrics = ["accuracy", "balanced accuracy", "precision", "recall", "f1", "roc_auc"]
+        metrics = [
+            "accuracy",
+            "balanced accuracy",
+            "precision",
+            "recall",
+            "f1",
+            "roc_auc",
+        ]
         trains_metrics = []
         tests_metrics = []
         acctrain = []
@@ -252,31 +354,82 @@ class Results:
             roc_auc_test.append(self.results[s]["test_roc_auc"])
 
         trains_metrics.append(
-            str(round(float(np.mean(acctrain)), 4)) + " (" + str(round(float(np.std(acctrain)), 4)) + ")")
+            str(round(float(np.mean(acctrain)), 4))
+            + " ("
+            + str(round(float(np.std(acctrain)), 4))
+            + ")"
+        )
         trains_metrics.append(
-            str(round(float(np.mean(balacctrain)), 4)) + " (" + str(round(float(np.std(balacctrain)), 4)) + ")")
+            str(round(float(np.mean(balacctrain)), 4))
+            + " ("
+            + str(round(float(np.std(balacctrain)), 4))
+            + ")"
+        )
         trains_metrics.append(
-            str(round(float(np.mean(precisiontrain)), 4)) + " (" + str(round(float(np.std(precisiontrain)), 4)) + ")")
+            str(round(float(np.mean(precisiontrain)), 4))
+            + " ("
+            + str(round(float(np.std(precisiontrain)), 4))
+            + ")"
+        )
         trains_metrics.append(
-            str(round(float(np.mean(recalltrain)), 4)) + " (" + str(round(float(np.std(recalltrain)), 4)) + ")")
+            str(round(float(np.mean(recalltrain)), 4))
+            + " ("
+            + str(round(float(np.std(recalltrain)), 4))
+            + ")"
+        )
         trains_metrics.append(
-            str(round(float(np.mean(f1train)), 4)) + " (" + str(round(float(np.std(f1train)), 4)) + ")")
+            str(round(float(np.mean(f1train)), 4))
+            + " ("
+            + str(round(float(np.std(f1train)), 4))
+            + ")"
+        )
         trains_metrics.append(
-            str(round(float(np.mean(roc_auc_train)), 4)) + " (" + str(round(float(np.std(roc_auc_train)), 4)) + ")")
+            str(round(float(np.mean(roc_auc_train)), 4))
+            + " ("
+            + str(round(float(np.std(roc_auc_train)), 4))
+            + ")"
+        )
 
         tests_metrics.append(
-            str(round(float(np.mean(acctest)), 4)) + " (" + str(round(float(np.std(acctest)), 4)) + ")")
+            str(round(float(np.mean(acctest)), 4))
+            + " ("
+            + str(round(float(np.std(acctest)), 4))
+            + ")"
+        )
         tests_metrics.append(
-            str(round(float(np.mean(balacctest)), 4)) + " (" + str(round(float(np.std(balacctest)), 4)) + ")")
+            str(round(float(np.mean(balacctest)), 4))
+            + " ("
+            + str(round(float(np.std(balacctest)), 4))
+            + ")"
+        )
         tests_metrics.append(
-            str(round(float(np.mean(precisiontest)), 4)) + " (" + str(round(float(np.std(precisiontest)), 4)) + ")")
+            str(round(float(np.mean(precisiontest)), 4))
+            + " ("
+            + str(round(float(np.std(precisiontest)), 4))
+            + ")"
+        )
         tests_metrics.append(
-            str(round(float(np.mean(recalltest)), 4)) + " (" + str(round(float(np.std(recalltest)), 4)) + ")")
-        tests_metrics.append(str(round(float(np.mean(f1test)), 4)) + " (" + str(round(float(np.std(f1test)), 4)) + ")")
+            str(round(float(np.mean(recalltest)), 4))
+            + " ("
+            + str(round(float(np.std(recalltest)), 4))
+            + ")"
+        )
         tests_metrics.append(
-            str(round(float(np.mean(roc_auc_test)), 4)) + " (" + str(round(float(np.std(roc_auc_test)), 4)) + ")")
+            str(round(float(np.mean(f1test)), 4))
+            + " ("
+            + str(round(float(np.std(f1test)), 4))
+            + ")"
+        )
+        tests_metrics.append(
+            str(round(float(np.mean(roc_auc_test)), 4))
+            + " ("
+            + str(round(float(np.std(roc_auc_test)), 4))
+            + ")"
+        )
 
-        metrics_table = pd.DataFrame(data={"metrics": metrics, "train": trains_metrics, "test": tests_metrics})
+        metrics_table = pd.DataFrame(
+            data={"metrics": metrics, "train": trains_metrics, "test": tests_metrics}
+        )
         return metrics_table
 
     def features_strip_chart_abundance_each_class(self, feature_df, data):
@@ -287,13 +440,21 @@ class Results:
         """
         important_features = list(feature_df["features"])[:10]
         df = data.loc[:, important_features]
-        print(df)
-        print(len(self.results["classes"]))
+        # print(df)
+        # print(len(self.results["classes"]))
         df["targets"] = self.results["classes"]
         return df
 
-    def produce_always_wrong_samples(self, y_train_true, y_train_pred, y_test_true, y_test_pred, split_number,
-                                     train_ids: List[str], test_ids: List[str]):
+    def produce_always_wrong_samples(
+        self,
+        y_train_true,
+        y_train_pred,
+        y_test_true,
+        y_test_pred,
+        split_number,
+        train_ids: List[str],
+        test_ids: List[str],
+    ):
         """
         return: two dicts with sample names as keys, and wrongly predicted as values (0:good pred, 1:bad pred)
         """
@@ -302,7 +463,6 @@ class Results:
         test_samples = {t: 0 for t in test_ids}
 
         labels = {l: idx for idx, l in enumerate(list(set(y_train_true)))}
-
 
         y_train_true = [labels[l] for l in y_train_true]
         y_train_pred = [labels[l] for l in y_train_pred]
@@ -320,6 +480,10 @@ class Results:
                 test_samples[n] += 1
 
         return train_samples, test_samples
+
+    def produce_features_2d_and_3d(self, features_table: pd.DataFrame, scaled_data):
+        selected_features = features_table[:3]["features"]
+        return scaled_data.loc[:, selected_features]
 
 
 class ResultsDT(Results):
@@ -418,8 +582,9 @@ class ResultsRF(Results):
         # Top 5 of sub-classifier (DT) for importance_(mean global importance in RF)
         features = [f for f in dict_top.keys()]
         times_used_all_splits = [dict_top[f][0] for f in dict_top.keys()]
-        importance_or_usage_or_ = [str(dict_top[f][1]) for f in
-                                   dict_top.keys()]  # + "_(" + str(dict_complet[f][1]) + ")"
+        importance_or_usage_or_ = [
+            str(dict_top[f][1]) for f in dict_top.keys()
+        ]  # + "_(" + str(dict_complet[f][1]) + ")"
         return features, times_used_all_splits, importance_or_usage_or_
 
 
@@ -453,8 +618,9 @@ class ResultsSCM(Results):
         dict_top = self.format_name_and_associated_values(features, importances)
         features = [f for f in dict_top.keys()]
         times_used_all_splits = [dict_top[f][0] for f in dict_top.keys()]
-        importance_or_usage_or_ = [str(dict_top[f][1]) for f in
-                                   dict_top.keys()]  # + "_(" + str(dict_complet[f][1]) + ")"
+        importance_or_usage_or_ = [
+            str(dict_top[f][1]) for f in dict_top.keys()
+        ]  # + "_(" + str(dict_complet[f][1]) + ")"
         return features, times_used_all_splits, importance_or_usage_or_
 
 
@@ -489,6 +655,7 @@ class ResultsRSCM(Results):
         dict_top = self.format_name_and_associated_values(features, importances)
         features = [f for f in dict_top.keys()]
         times_used_all_splits = [dict_top[f][0] for f in dict_top.keys()]
-        importance_or_usage_or_ = [str(dict_top[f][1]) for f in
-                                   dict_top.keys()]  # + "_(" + str(dict_complet[f][1]) + ")"
+        importance_or_usage_or_ = [
+            str(dict_top[f][1]) for f in dict_top.keys()
+        ]  # + "_(" + str(dict_complet[f][1]) + ")"
         return features, times_used_all_splits, importance_or_usage_or_

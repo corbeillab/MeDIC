@@ -4,7 +4,6 @@ from sklearn import tree, ensemble
 import pickle as pkl
 
 
-
 class runAlgo:
     def __init__(self, algo_name, cv_folds, params, algo_import=""):
         self.name = algo_name  # Name of the algorithm, ex: DecisionTreeClassifier
@@ -18,7 +17,6 @@ class runAlgo:
         self.gs = 0
         self.params = params  # (dictionary) parameters to explore with the gridsearch
         self.cv_folds = int(cv_folds)  # number of folds to do gridsearch
-
 
     def learn(self, options_dict):
         """
@@ -41,8 +39,12 @@ class runAlgo:
         # split_no = options_dict["split_no"]  # number of the split
 
         # do GridSearchCV and save results to file
-        train_predict, test_predict = self._gridSearch(self.params, self.cv_folds, Xtrain, Xtest, ytrain)
-        self._save_results_to_file(design_name, split_no, train_predict, test_predict, ytrain, ytest)
+        train_predict, test_predict = self._gridSearch(
+            self.params, self.cv_folds, Xtrain, Xtest, ytrain
+        )
+        self._save_results_to_file(
+            design_name, split_no, train_predict, test_predict, ytrain, ytest
+        )
 
     def _import_the_algorithm(self):
         imports = self.imp.split(".")
@@ -65,13 +67,25 @@ class runAlgo:
         test_predict = self.gs.predict(Xtest)
         return train_predict, test_predict
 
-    def _save_results_to_file(self, design_name, split_no, train_predict, test_predict, train_targets, test_targets):
+    def _save_results_to_file(
+        self,
+        design_name,
+        split_no,
+        train_predict,
+        test_predict,
+        train_targets,
+        test_targets,
+    ):
         print("saving to file")
         # Save to file.
-        with open(os.path.join("Results", "{}_{}_{}.pkl".format(design_name, split_no, self.name)), "wb") as fo:
+        with open(
+            os.path.join(
+                "Results", "{}_{}_{}.pkl".format(design_name, split_no, self.name)
+            ),
+            "wb",
+        ) as fo:
             pkl.dump(self.gs, fo)
             pkl.dump(train_predict, fo)
             pkl.dump(test_predict, fo)
             pkl.dump(train_targets, fo)
             pkl.dump(test_targets, fo)
-

@@ -2,8 +2,11 @@ from sklearn.model_selection import train_test_split
 import glob, random
 import numpy as np
 
-class SamplesPairing():
-    def __init__(self, pairings, sample_names, targets, IDs, proportion_in_test, nbr_splits):
+
+class SamplesPairing:
+    def __init__(
+        self, pairings, sample_names, targets, IDs, proportion_in_test, nbr_splits
+    ):
         self.pairings = pairings
         self.sample_names = sample_names
         self.targets = targets
@@ -13,7 +16,6 @@ class SamplesPairing():
         self.dict_splits = {}
 
         self.names_dict = {n: idx for idx, n in enumerate(self.sample_names)}
-
 
     def split(self):
         """
@@ -30,20 +32,28 @@ class SamplesPairing():
                 for i, id in enumerate(self.ids):  # itère sur chq id unique
                     if id in s:  # vérifie si l'id est présent dans le nom de sample
                         X.append(s)
-                        y.append(self.targets[i])  # ajoute label correspondant à l'id(correspondant lui-meme au sample)
+                        y.append(
+                            self.targets[i]
+                        )  # ajoute label correspondant à l'id(correspondant lui-meme au sample)
 
             ##### Create the splits ######
 
             for i in range(self.nbr_splits):
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=self.proportion,
-                                                                    random_state=i)
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=self.proportion, random_state=i
+                )
                 # convert sample names to indices so its easier to reconstruct later
                 # X_train = [self.names_dict[i] for i in X_train]
                 # X_test = [self.names_dict[i] for i in X_test]
 
                 ###### save splits dans dict ######
 
-                self.dict_splits["split{}".format(i)] = [X_train, X_test, y_train, y_test]
+                self.dict_splits["split{}".format(i)] = [
+                    X_train,
+                    X_test,
+                    y_train,
+                    y_test,
+                ]
         else:
             self._test_pairing_patterns_spelling()
             # select base files to do the spliting on
@@ -56,10 +66,14 @@ class SamplesPairing():
             for s in self.sample_names:  # itère sur chaque nom de sample
                 ok = True
                 for p in first_patterns:  # itère sur chq 1er pattern des pairings
-                    if p not in s:  # check si le (ou un des deux) pattern n'est pas présent
+                    if (
+                        p not in s
+                    ):  # check si le (ou un des deux) pattern n'est pas présent
                         ok = False
                 # if it does, check its ID to match its target
-                if ok:  # si le/les patterns sont présents, ajoute le sample au groupe de base/de reference
+                if (
+                    ok
+                ):  # si le/les patterns sont présents, ajoute le sample au groupe de base/de reference
                     for i, id in enumerate(self.ids):
                         if id in s:
                             X.append(s)
@@ -68,7 +82,9 @@ class SamplesPairing():
             ##### Create the splits ######
 
             for i in range(self.nbr_splits):
-                X_train, X_test, y_train, y_train = train_test_split(X, y, test_size=self.proportion, random_state=i)
+                X_train, X_test, y_train, y_train = train_test_split(
+                    X, y, test_size=self.proportion, random_state=i
+                )
 
                 # replace pattern to match spliting
                 # create target list accordingly
@@ -77,24 +93,30 @@ class SamplesPairing():
                 idx = len(self.pairings) - 1
                 new_xy = []
                 if idx + 1 == 1:  # if there is one pairing to do
-                    new_xy = self._iterate_on_pattern_to_get_paired_files(pattern_list, idx, self.pairings[idx],
-                                                                           X_train, X_test)
+                    new_xy = self._iterate_on_pattern_to_get_paired_files(
+                        pattern_list, idx, self.pairings[idx], X_train, X_test
+                    )
                 elif idx + 1 == 2:  # if there is two pairings to do
                     X1 = X_train
                     X2 = X_test
                     for p in self.pairings[0]:
                         pattern_list[0] = p
-                        new_sub_xy = self._iterate_on_pattern_to_get_paired_files(pattern_list, idx, self.pairings[idx],
-                                                                                   X1, X2)
+                        new_sub_xy = self._iterate_on_pattern_to_get_paired_files(
+                            pattern_list, idx, self.pairings[idx], X1, X2
+                        )
                         X1 = new_sub_xy[0][0]
                         X2 = new_sub_xy[0][1]
 
-                        new_xy.extend(new_sub_xy)  # in shape of a list containing all [xtrain, xtest, ytrain, ytest] groups
+                        new_xy.extend(
+                            new_sub_xy
+                        )  # in shape of a list containing all [xtrain, xtest, ytrain, ytest] groups
 
                 ###### save splits dans dict ######
 
                 # shuffles
-                new_xy = np.swapaxes(new_xy, 0, 1)  # is now in shape of 4 big lists (xtrain, xtest, ytrain, ytest)
+                new_xy = np.swapaxes(
+                    new_xy, 0, 1
+                )  # is now in shape of 4 big lists (xtrain, xtest, ytrain, ytest)
 
                 new_X_train = new_xy[0]
                 new_y_train = new_xy[2]
@@ -112,7 +134,12 @@ class SamplesPairing():
                 X_train = [self.names_dict[i] for i in X_train]
                 X_test = [self.names_dict[i] for i in X_test]
 
-                self.dict_splits["split{}".format(i)] = [X_train, X_test, y_train, y_test]
+                self.dict_splits["split{}".format(i)] = [
+                    X_train,
+                    X_test,
+                    y_train,
+                    y_test,
+                ]
 
     def _is_there_pairing_to_do(self):
         no_pairing = 0
@@ -138,7 +165,9 @@ class SamplesPairing():
         new_xy = []
         for pattern in pairing:
             base[idx] = pattern
-            X1_2, X2_2, y1_2, y2_2 = self._replace_pattern_get_matching_files(p1, base[idx], X1, X2)
+            X1_2, X2_2, y1_2, y2_2 = self._replace_pattern_get_matching_files(
+                p1, base[idx], X1, X2
+            )
             new_xy.append([X1_2, X2_2, y1_2, y2_2])
 
         return new_xy
@@ -185,8 +214,11 @@ class SamplesPairing():
                     prob_patterns.append(pattern)
 
         if len(prob_patterns) > 0:
-            raise("There is a pattern error, here are the problematic patterns : {}".format(prob_patterns))
-
+            raise (
+                "There is a pattern error, here are the problematic patterns : {}".format(
+                    prob_patterns
+                )
+            )
 
 
 # #Conditionnal statement to handle split creation with pairing(s)

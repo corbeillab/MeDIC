@@ -1,14 +1,18 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
+
 # from sklearn.externals.six.moves import range
 from msvlm.msvlm.identification import VirtualLockMassCorrector
+
 # import msvlm.msAlign.msAlign as ms
 import preprocessing.RFMSA2_old_new
 import os, sys, glob
+
 # import h5py as h
 from .metabodashboard.service.pymspec.spectrum import unify_mz
 from .metabodashboard.service.pymspec.io.ion_list.file_loader import *
 from preprocessing.Utils import *
 import copy
+
 # from vlm.identification import VirtualLockMassCorrector
 import pickle as pkl
 import datetime
@@ -61,7 +65,11 @@ def create_one_split(input):
     lcs_list_pos = []
     lcs_list_neg = []
 
-    for i in files_list:  # there was an error in labeling, so the pos and neg in file's name are not valid, we must check ionization with plate number
+    for (
+        i
+    ) in (
+        files_list
+    ):  # there was an error in labeling, so the pos and neg in file's name are not valid, we must check ionization with plate number
         if "plate01" in i or "plate02" in i:
             lcs_list_pos.append(i)
         elif "plate03" in i or "plate04" in i:
@@ -84,7 +92,7 @@ def create_one_split(input):
         name = s.metadata["file"].split("/")[-1]
         s.metadata["target"] = targets[name]
 
-    # ------ Check if file target exist ---- 
+    # ------ Check if file target exist ----
     for s in spect_train + spect_test:
         try:
             s.metadata["target"]
@@ -93,7 +101,9 @@ def create_one_split(input):
             sys.exit(1)
 
     # ------ Preprocess data -----
-    preprocessing_pipeline = common.Pipeline([discrete.ThresholdedPeakFiltering(peak_threshold)])
+    preprocessing_pipeline = common.Pipeline(
+        [discrete.ThresholdedPeakFiltering(peak_threshold)]
+    )
     test = list(preprocessing_pipeline.fit_transform(spect_test))
     train = list(preprocessing_pipeline.fit_transform(spect_train))
 
@@ -179,11 +189,13 @@ def create_one_split(input):
     spect_train_neg = list(load_ion_list(train_list_neg, mz_precision=4))
     spect_test_neg = list(load_ion_list(test_list_neg, mz_precision=4))
 
-    # No need to create the metadata target since we merge neg with pos at the end, so they end up sharing 
+    # No need to create the metadata target since we merge neg with pos at the end, so they end up sharing
     # the previously created metadata for pos
 
     # ------------ Preprocess data -------------
-    preprocessing_pipeline = common.Pipeline([discrete.ThresholdedPeakFiltering(peak_threshold)])
+    preprocessing_pipeline = common.Pipeline(
+        [discrete.ThresholdedPeakFiltering(peak_threshold)]
+    )
     test_neg = list(preprocessing_pipeline.fit_transform(spect_test_neg))
     train_neg = list(preprocessing_pipeline.fit_transform(spect_train_neg))
 
@@ -210,7 +222,9 @@ def create_one_split(input):
     train_optimizer = vlm_neg.transform(train_optimizer)
 
     # ----------- Do the RFMSA thing ------------
-    rfmsa_neg = preprocessing.RFMSA2_old_new.Reference_free_aligner2(min_mz=50, max_mz=1200)
+    rfmsa_neg = preprocessing.RFMSA2_old_new.Reference_free_aligner2(
+        min_mz=50, max_mz=1200
+    )
     logging.debug("%s : RFMSA optimization" % split_id)
     rfmsa_neg.autoOptimize(train_optimizer, max_distance_values=(40, 50, 60, 70, 80))
 
@@ -242,9 +256,14 @@ def create_one_split(input):
     merged_spect = []
     for i, s in enumerate(spect):
         n = spect_neg[i]
-        merged_spect.append(Spectrum(np.append(s.mz_values, n.mz_values),
-                                     np.append(s.intensity_values, n.intensity_values), mz_precision=4,
-                                     metadata=s.metadata))
+        merged_spect.append(
+            Spectrum(
+                np.append(s.mz_values, n.mz_values),
+                np.append(s.intensity_values, n.intensity_values),
+                mz_precision=4,
+                metadata=s.metadata,
+            )
+        )
 
     ####################
     #     Output       #
@@ -302,7 +321,7 @@ def shuffle_file_names(files):
     return files[index]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # logging.basicConfig(level=logging.DEBUG, format="%(asctime)s.%(msecs)d %(levelname)s %(module)s - %(process)d - %(
     # funcName)s: %(message)s")
 

@@ -1,33 +1,43 @@
 import os
 import pickle
-from typing import Generator, Tuple, List
+from typing import Generator, Tuple
 
 import pandas as pd
 
 from . import MetaboExperiment
 from .MetaboExperimentDTO import MetaboExperimentDTO
-from ..service import Plots
 from .Results import *
 
 ROOT_PATH = os.path.dirname(__file__)
 DUMP_PATH = os.path.join(ROOT_PATH, os.path.join("dumps", "splits"))
 
+
 class MetaboController:
-    def __init__(self, metaboExp: MetaboExperiment=None):
+    def __init__(self, metaboExp: MetaboExperiment = None):
         if metaboExp is None:
             self._metabo_experiment = MetaboExperiment()
         else:
             self._metabo_experiment = metaboExp
-        self._plots = Plots("blues")
 
     def set_metadata(self, filename: str, data=None, from_base64=True) -> None:
-        self._metabo_experiment.set_metadata_with_dataframe(filename=filename, data=data, from_base64=from_base64)
+        self._metabo_experiment.set_metadata_with_dataframe(
+            filename=filename, data=data, from_base64=from_base64
+        )
 
-    def set_data_matrix_from_path(self, path_data_matrix, data=None, use_raw=False, from_base64=True):
-        return self._metabo_experiment.set_data_matrix(path_data_matrix, data=data, use_raw=use_raw, from_base64=from_base64)
+    def set_data_matrix_from_path(
+        self,
+        path_data_matrix,
+        data=None,
+        from_base64=True,
+    ):
+        return self._metabo_experiment.set_data_matrix(
+            path_data_matrix,
+            data=data,
+            from_base64=from_base64,
+        )
 
-    def get_features(self) -> list:
-        return self._metabo_experiment.get_features()
+    def get_metadata_columns(self) -> list:
+        return self._metabo_experiment.get_metadata_columns()
 
     def get_unique_targets(self) -> list:
         return self._metabo_experiment.get_unique_targets()
@@ -53,8 +63,12 @@ class MetaboController:
     def get_samples_id_from_splits(self, nbr_split_list, design):
         samples_list = []
         for s in nbr_split_list:
-            with open(os.path.join(DUMP_PATH, design+"_split_{}.p".format(s)), "rb") as split_file:
-                samples_list.append(pickle.load(split_file)[:2])  # append list of X_train & X_test samples names
+            with open(
+                os.path.join(DUMP_PATH, design + "_split_{}.p".format(s)), "rb"
+            ) as split_file:
+                samples_list.append(
+                    pickle.load(split_file)[:2]
+                )  # append list of X_train & X_test samples names
         return samples_list
 
     def set_target_column(self, target_column: str):
@@ -66,44 +80,29 @@ class MetaboController:
     def set_selected_models(self, selected_models: list):
         self._metabo_experiment.set_selected_models(selected_models)
 
-    def learn(self, folds: int):
-        self._metabo_experiment.learn(folds)
-
-    def show_exp_info_all(self, df: pd.DataFrame):
-        return self._plots.show_exp_info_all(df)
-
-    def produce_exp_info(self, design_name: str, algo: str):
-        return self._metabo_experiment.experimental_designs[design_name].results[algo].results["info_expe"]
-
-    def show_accuracy_all(self, df: pd.DataFrame):
-        return self._plots.show_accuracy_all(df)
-
-    def produce_accuracy_plot_all(self, design_name: str, algo: str):
-        # TODO: méthode get_accuracy_plot_all(design_name: str, algo:str)
-        return self._metabo_experiment.experimental_designs[design_name].results[algo].produce_accuracy_plot_all()
-
-    def show_features_selection(self, df: pd.DataFrame):
-        return self._plots.show_features_selection(df)
-
-    def produce_features_importance_table(self, design_name: str, algo: str):
-        return self._metabo_experiment.experimental_designs[design_name].results[
-            algo].produce_features_importance_table()
-
-    def show_umap(self, df: pd.DataFrame):
-        return self._plots.show_umap(df)
-
-    def produce_umap(self, design_name: str, algo: str):
-        return self._metabo_experiment.experimental_designs[design_name].results[
-            algo].produce_features_importance_table()
+    def learn(self):
+        self._metabo_experiment.learn()
 
     def get_results(self, design_name: str, algo: str):
-        return self._metabo_experiment.experimental_designs[design_name].results[algo].results
+        return (
+            self._metabo_experiment.experimental_designs[design_name]
+            .results[algo]
+            .results
+        )
 
     def get_all_results(self):
-        return self._metabo_experiment.get_all_results()
+        return self._metabo_experiment.get_all_updated_results()
 
-    def add_custom_model(self, model_name: str, needed_import: str, grid_search_param: dict):
-        self._metabo_experiment.add_custom_model(model_name, needed_import, grid_search_param)
+    def add_custom_model(
+        self,
+        model_name: str,
+        needed_imports: str,
+        params: List[str],
+        values_to_explore: List[List[str]],
+    ):
+        self._metabo_experiment.add_custom_model(
+            model_name, needed_imports, params, values_to_explore
+        )
 
     def get_all_algos_names(self) -> list:
         return self._metabo_experiment.get_all_algos_names()
@@ -126,11 +125,25 @@ class MetaboController:
     def full_restore(self, saved_metabo_experiment_dto: MetaboExperimentDTO):
         self._metabo_experiment.full_restore(saved_metabo_experiment_dto)
 
-    def partial_restore(self, saved_metabo_experiment_dto: MetaboExperimentDTO, filename_data: str,
-                        filename_metadata: str, data=None, use_raw_data: bool = False, from_base64_data: bool = True,
-                        metadata=None, from_base64_metadata=True):
-        self._metabo_experiment.partial_restore(saved_metabo_experiment_dto, filename_data, filename_metadata,
-                                                data, use_raw_data, from_base64_data, metadata, from_base64_metadata)
+    def partial_restore(
+        self,
+        saved_metabo_experiment_dto: MetaboExperimentDTO,
+        filename_data: str,
+        filename_metadata: str,
+        data=None,
+        from_base64_data: bool = True,
+        metadata=None,
+        from_base64_metadata=True,
+    ):
+        self._metabo_experiment.partial_restore(
+            saved_metabo_experiment_dto,
+            filename_data,
+            filename_metadata,
+            data,
+            from_base64_data,
+            metadata,
+            from_base64_metadata,
+        )
 
     def load_results(self, saved_metabo_experiment_dto: MetaboExperimentDTO):
         self._metabo_experiment.load_results(saved_metabo_experiment_dto)
@@ -159,8 +172,44 @@ class MetaboController:
     def get_selected_models(self) -> List[str]:
         return self._metabo_experiment.get_selected_models()
 
-    def are_files_corresponding(self, data_file: str, metadata_file: str) -> bool:
-        return self._metabo_experiment.are_files_corresponding(data_file, metadata_file)
-
     def is_progenesis_data(self) -> bool:
         return self._metabo_experiment.is_progenesis_data()
+
+    def get_pairing_group_column(self) -> str:
+        return self._metabo_experiment.get_pairing_group_column()
+
+    def set_pairing_group_column(self, pairing_group_column: str):
+        self._metabo_experiment.set_pairing_group_column(pairing_group_column)
+
+    def is_data_raw(self) -> bool:
+        return self._metabo_experiment.is_data_raw()
+
+    def set_raw_use_for_data(self, use_raw_data: bool):
+        self._metabo_experiment.set_raw_use_for_data(use_raw_data)
+
+    def get_data_matrix_remove_rt(self) -> bool:
+        return self._metabo_experiment.get_data_matrix_remove_rt()
+
+    def set_data_matrix_remove_rt(self, remove_rt: bool):
+        self._metabo_experiment.set_data_matrix_remove_rt(remove_rt)
+
+    def get_cv_folds(self) -> int:
+        return self._metabo_experiment.get_cv_folds()
+
+    def set_cv_folds(self, cv_folds: int):
+        self._metabo_experiment.set_cv_folds(cv_folds)
+
+    def get_number_of_processes_for_cv(self) -> int:
+        return self._metabo_experiment.get_number_of_processes_for_cv()
+
+    def set_number_of_processes_for_cv(self, number_of_processes: int):
+        self._metabo_experiment.set_number_of_processes_for_cv(number_of_processes)
+
+    def update_experimental_designs_with_selected_models(self):
+        self._metabo_experiment.update_experimental_designs_with_selected_models()
+
+    def is_the_data_matrix_corresponding(self, data: str) -> bool:
+        return self._metabo_experiment.is_the_data_matrix_corresponding(data)
+
+    def is_the_metadata_corresponding(self, metadata: str) -> bool:
+        return self._metabo_experiment.is_the_metadata_corresponding(metadata)
